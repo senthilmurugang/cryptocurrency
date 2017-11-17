@@ -1,4 +1,5 @@
 from mongoengine import Document, fields, EmbeddedDocument
+import datetime
 
 
 class PriceInfo(Document):
@@ -8,7 +9,7 @@ class PriceInfo(Document):
     timestamp = fields.DateTimeField(required=True)
 
 
-class OauthClients(EmbeddedDocument):
+class OauthClient(EmbeddedDocument):
     client_id = fields.StringField(primary_key=True)
     client_secret = fields.StringField()
     redirect_uri = fields.StringField()
@@ -17,7 +18,7 @@ class OauthClients(EmbeddedDocument):
     user_id = fields.StringField()
 
 
-class OauthAccessTokens(EmbeddedDocument):
+class OauthAccessToken(EmbeddedDocument):
     access_token = fields.StringField(primary_key=True)
     expires_in = fields.LongField()
     scope = fields.StringField()
@@ -34,7 +35,7 @@ class OauthAuthorizationCodes(EmbeddedDocument):
     id_token = fields.StringField()
 
 
-class OauthRefreshTokens(EmbeddedDocument):
+class OauthRefreshToken(EmbeddedDocument):
     refresh_token = fields.StringField(primary_key=True)
     client_id = fields.StringField()
     user_id = fields.StringField()
@@ -66,11 +67,34 @@ class OauthJwt(EmbeddedDocument):
 class OauthCredentials(Document):
     exchange = fields.StringField(primary_key=True)
     oauth_token_url = fields.StringField(required=True)
-    oauth_clients = fields.EmbeddedDocumentField(OauthClients)
-    oauth_access_tokens = fields.EmbeddedDocumentField(OauthAccessTokens)
-    oauth_authorization_codes = fields.EmbeddedDocumentField(OauthAuthorizationCodes)
-    oauth_refresh_tokens = fields.EmbeddedDocumentField(OauthRefreshTokens)
-    oauth_users = fields.EmbeddedDocumentField(OauthUsers)
-    oauth_scopes = fields.EmbeddedDocumentField(OauthScopes)
-    oauth_jwt = fields.EmbeddedDocumentField(OauthJwt)
+    oauth_client = fields.EmbeddedDocumentField(OauthClient)
+    oauth_access_token = fields.EmbeddedDocumentField(OauthAccessToken)
+    oauth_authorization_codes = fields.EmbeddedDocumentListField(OauthAuthorizationCodes)
+    oauth_refresh_token = fields.EmbeddedDocumentField(OauthRefreshToken)
+    oauth_users = fields.EmbeddedDocumentListField(OauthUsers)
+    oauth_scopes = fields.EmbeddedDocumentListField(OauthScopes)
+    oauth_jwt = fields.EmbeddedDocumentListField(OauthJwt)
+
+
+class Info(EmbeddedDocument):
+    quantity = fields.LongField()
+    buy_or_sell_rate = fields.LongField()
+    buy_rate = fields.LongField()
+    sell_rate = fields.LongField()
+
+
+class History(EmbeddedDocument):
+    date = fields.DateTimeField(default=datetime.datetime.utcnow().isoformat())
+    action = fields.StringField()
+    info = fields.EmbeddedDocumentField(Info)
+
+
+class Expenses(EmbeddedDocument):
+    buy_fee = fields.FloatField(default=0.012)
+    sell_fee = fields.FloatField(default=0.012)
+
+
+class TransactionInfo(Document):
+    history = fields.EmbeddedDocumentListField(History)
+    expenses = fields.EmbeddedDocumentField(Expenses)
 

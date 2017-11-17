@@ -37,7 +37,7 @@ def rates(request):
     currency = request.GET['currency'] if request.GET.__contains__('currency') == '' else 'inr'
     print currency
     updates = handler.update_crypto_currency_rates(currency)
-    return HttpResponse("<p>Crypto Currency rates updated!</p>"+updates)
+    return HttpResponse("<p>Crypto Currency rates updated!</p>"+str(updates))
 
 
 def history(request):
@@ -55,7 +55,6 @@ def auth_callback(request):
 
 def authorize(request):
     handler.request_access_token('unocoin')
-    # return redirect()
     return HttpResponse("<p>Got access token!")
 
 
